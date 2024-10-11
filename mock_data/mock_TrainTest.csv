@@ -1,0 +1,11 @@
+shuffled_mrn,1,2,3,4
+206773.0,Train,Train,Train,Test
+397912.0,Train,Train,Train,Test
+866571.0,Train,Train,Train,Test
+863683.0,Train,Test,Train,Train
+119779.0,Test,Train,Train,Train
+480501.0,Test,Train,Train,Train
+517577.0,Test,Val,Train,Val
+826327.0,Train,Train,Test,Val
+768222.0,Val,Train,Test,Train
+718288.0,Train,Test,Val,Train
