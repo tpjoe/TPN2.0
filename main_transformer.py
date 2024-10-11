@@ -108,7 +108,7 @@ def scale_data(X_list, y_list, mask_train):
     return X_list_scaled, y_list_scaled, input_scaler, output_scaler
 
 
-def define_model_and_parameters(y_shape, X_shape, device="cuda:2"):
+def define_model_and_parameters(y_shape, X_shape, device=device):
     DEVICE = device
     torch.manual_seed(0)
     TGT_N_TASKS = y_shape[1]
@@ -264,6 +264,7 @@ def cluster_and_train(all_k, y_all_, y_, vars_3, train_dataloader_sub, val_datal
 def main(PI):
     # Load data
     # data = pd.read_csv(path + 'data/5-Final_allColumns_082024.csv')
+    device = 'cuda:0'
     data = pd.read_csv(path + 'Python/paper_github/mock_data/mock_data.csv')
 
     # Preprocess data
@@ -283,7 +284,7 @@ def main(PI):
     X_list, y_list, meta_list, PAD_IDX, BOS_IDX, EOS_IDX = transform_sequence_data(X_list, y_list, meta_list)
 
     # Define model and parameters
-    transformer, optimizer, DEVICE, BATCH_SIZE = define_model_and_parameters(y_.shape, X_.shape, device='cuda:2')
+    transformer, optimizer, DEVICE, BATCH_SIZE = define_model_and_parameters(y_.shape, X_.shape, device=device)
 
     # Create dataloaders
     train_meta_dataloader = create_variable_length_dataloader(list(compress(X_list, mask_train)),
@@ -354,7 +355,7 @@ def main(PI):
     X_list, y_list, meta_list, PAD_IDX, BOS_IDX, EOS_IDX = transform_sequence_data(X_list, y_list, meta_list)
 
     # Define model and parameters
-    transformer, optimizer, DEVICE, BATCH_SIZE = define_model_and_parameters(y_.shape, X_.shape, device='cuda:2')
+    transformer, optimizer, DEVICE, BATCH_SIZE = define_model_and_parameters(y_.shape, X_.shape, device=device)
 
     # Create dataloaders
     train_dataloader_sub = create_variable_length_dataloader(list(compress(X_list, mask_train)),

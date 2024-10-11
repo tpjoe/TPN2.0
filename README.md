@@ -1,69 +1,18 @@
 # Information
 
-## General folder structure (Samson, you can skip this)
-- train.py: Trains a model in two phases - pretraining and finetuning.
-- inference.py: Perform inference on csv input data and a single sample using a trained transformer model.
-- model.py: Seq2SeqTransformer Network
-- trainer.py: Helper functions for model training and inference
-- dataset.py: MedicalDataset
-- config.py: Configuration object containing model and operation settings
-- utils.py: Helper functions for model training and inference
-- parser.py: Parse command line arguments
-- environment.py: Environment libraries to install.
-- mock_data.py: Mock data for testing purposes.
-
+## General info
+This repository hosts the codes for the TPN2.0 models, including the VAE-based and transformer-based ones. The code can be run on a shortlisted mock data provided in the mock_data folder. It will return the model performance based on the mock data, which should be close to 0 as the mock data were based on random distributions.
 
 ## Usage
-- To update the software database
+- To run the VAE-based model
 ```
-python fetch.py --UID=N00001
-```
-
-- To preprocess the data, which includes handling nans, capping data range if exceed, encoding data, etc. Please have a look at config file for the input and output directory
-```
-python preprocess.py --todays_date=2024-08-21
-python preprocess_TPN.py --todays_date=2024-08-21
+python main_VAE.py
 ```
 
-
-- To make prediction
+- To run the transformer-based model
 ```
-python get_recommendations.py --device=cuda:0 --rerank=False --n_clusters=5 --UID=N00001
+python transformer.py
 ```
-
-This will return a dataframe of TPN composition from the top three choices. If rerank is True, you need to provide a dataframe of manual target (see /inputs/user_manual_target.csv). This code should work seamlessly on the preprocessed database.
-
-
-- To get interpretation
-```
-python get_why.py --UID=N00001 --device=cuda:0
-```
-
-This will return a dataframe of the top feature importance in low, high, medium.
-
-More details on the path default values are in the `config.py` file.
-
-
-## Notes
-- If any of the parsed arguments are `None`, it will falls back to the default values defined in `config.py`
-
-## Database Structure and Flow
-- Samson's Data Lake (DL) - Data Samson queried from Epic, these might have 2 labs updated at different timepoint of the same day
-- DB - Our own database that aggregate data within the same day into the same row. This is an SQL database. Any missing values are retained here. The DB has 3 tables
-    1. Person - This table contains static information of the patient, including UID, bw, gest_age, race_concept_id, and gender_concept_id
-    2. Measurements - This table contains all other dynamic inputs from Samson's DL, such as lab values, TodaysWeight, day_since_birth, etc.
-    3. TPNParams - This table contains all the TPN variables input by the physicians into the app.
-- PDB - Processed database, all the same as DB structure, except the data in all 3 tables are processed and ready to the model.
-- ADB - Adjustment database, only have 1 table and it collects all TPN target changes the user made. This is an input to rerank the choices.
-
-![Flow Diagram](Flow.svg)
-
-## To-do
-- Improve speed of the model and SHAP calculations
-- A function to allow flexible number of desired TPN2.0 formulas
-- A function to rerank the choice given doctor's inputs
-- Shrink and reorder redundant inputs
-- Table for feature names to actual words
 
 
 ## Input Details
