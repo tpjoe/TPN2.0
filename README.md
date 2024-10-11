@@ -16,7 +16,6 @@ python transformer.py
 
 
 ## Input Details
-https://docs.google.com/spreadsheets/d/1rP8PXfDtwl67aSXsOiLZ5HUxOubqU9oEfHjvZdDh2sA/edit?gid=0#gid=0
 
 | Parameter                    | Units            | 95% CI Range (NICU) |
 |------------------------------|------------------|--------------|
@@ -47,14 +46,10 @@ https://docs.google.com/spreadsheets/d/1rP8PXfDtwl67aSXsOiLZ5HUxOubqU9oEfHjvZdDh
 | VTBI                          | mL               |  55-626     |
 | InfusionRate                  | mL/hr            |  2.29-26.38     |
 | FatInfusionRate               | mL/hr            |  0.00-3.03     |
-| ProtocolName_NEONATAL         | None             |  1 if NEONATAL     |
-| ProtocolName_PEDIATRIC        | None             |  1 if PEDIATRIC     |
-| LineID_1                      | None             |  1 if central     |
-| LineID_2                      | None             |  1 if peripheral     |
-| gender_concept_id_0           | None             |  1 if gender unknown     |
+| ProtocolName_NEONATAL         | None             |  1 if NEONATAL; 0 means PEDIATRIC     |
+| LineID_2                      | None             |  1 if peripheral; 0 means central     |
 | gender_concept_id_8507        | None             |  1 if male     |
 | gender_concept_id_8532        | None             |  1 if female     |
-| race_concept_id_0             | None             |  1 if race unknown     |
 | race_concept_id_8515          | None             |  1 if Asian     |
 | race_concept_id_8516          | None             |  1 if Black     |
 | race_concept_id_8527          | None             |  1 if White     |
@@ -63,5 +58,6 @@ https://docs.google.com/spreadsheets/d/1rP8PXfDtwl67aSXsOiLZ5HUxOubqU9oEfHjvZdDh
 | FatProduct_SMOFlipid 20%      | None             |  1 if SMOFlipid 20%     |
 | FatProduct_Intralipid 20%     | None             |  1 if Intralipid 20%     |
 | FatProduct_Omegaven 10%       | None             |  1 if Omegaven 20%     |
+| Encoded_0 (0-32)       | None             |  Encoded EHR representation from AE (32 dimensions)     |
 
 
