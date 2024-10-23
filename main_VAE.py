@@ -367,7 +367,7 @@ def main():
     # Create masks
     data_test = data.copy()
     ndays = 730
-    cv = ['3', '4']
+    cv = ['3', '4'] # CV1 = ['1', '2'], CV2 = ['3', '4']
     train_mrn, val_mrn, test_mrn = create_masks(data_test, ndays, cv, path)
 
     X_ = data_test.loc[:, data_test.columns.isin(input_var)].copy()

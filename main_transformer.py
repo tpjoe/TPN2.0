@@ -347,7 +347,7 @@ def main(PI):
 
     # Create masks
     ndays = 730
-    cv = ['3', '4']
+    cv = ['3', '4'] # CV1 = ['1', '2'], CV2 = ['3', '4']
     mask_train, mask_val, mask_test = create_masks(data_test_sub, ndays, cv)
 
     # Scale data
