@@ -1,7 +1,7 @@
 # Information
 
 ## General info
-This repository hosts the codes for the TPN2.0 models, including the VAE-based and transformer-based ones. The code can be run on a shortlisted mock data provided in the mock_data folder. It will return the model performance based on the mock data, which should be close to 0 as the mock data were based on random distributions.
+This repository hosts the codes for the TPN2.0 models, including the VAE-based and transformer-based ones. The code can be run on a shortlisted mock data provided in the mock_data folder. It will return the model performance based on the mock data, which should be close to 0 as the mock data were based on random distributions. On a normal computer, even without a GPU, this code with the small simulated dataset provided should not take longer than 10 minutes to run.
 
 ## Usage
 - To run the VAE-based model
