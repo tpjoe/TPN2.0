@@ -225,10 +225,10 @@ class EarlyStopping:
         return self.early_stop
 
 
-def vectorized_get_osm(weight, vtbi, smof, omegaven, AdultMVIDose, 
-                       aa_pred, dd_pred, fat_pred, mvi_pred, 
+def vectorized_get_osm(weight, vtbi, AdultMVIDose, 
+                       aa_pred, dd_pred, mvi_pred, 
                        po4_pred, na_pred, k_pred, ca_pred,
-                       zn_pred, mg_pred, levocar_pred):
+                       zn_pred, mg_pred, acetate_pred):
     """
     Calculate the osmolarity of a solution based on various input parameters.
     This function computes the osmolarity of a solution using a vectorized approach. 
@@ -255,34 +255,66 @@ def vectorized_get_osm(weight, vtbi, smof, omegaven, AdultMVIDose,
     Returns:
     torch.Tensor: The calculated osmolarity of the solution.
     """
-    # Create a tensor of zeros with the same shape as other inputs
+    # Initialize osm tensor
     osm = torch.zeros_like(aa_pred)
-    # Calculate each component
+    
+    # Calculate AA factor based on AANDC
+    factor = 0.96
+    
+    # Base calculations
     osm += aa_pred * weight / 0.1 * 0.866
-    osm += vtbi * dd_pred / 100 / 0.7 * 3.53
-    # Fat product calculation
-    fat_cond_omeg = (omegaven==1)
-    fat_cond_smof = (smof==1)
-    fat_cond_intra = ~(fat_cond_omeg | fat_cond_smof)
-    osm[fat_cond_smof] += fat_pred[fat_cond_smof] * weight[fat_cond_smof] * 0.27 / 0.2
-    osm[fat_cond_intra] += fat_pred[fat_cond_intra] * weight[fat_cond_intra] * 0.26 / 0.2
-    osm[fat_cond_omeg] += fat_pred[fat_cond_omeg] * weight[fat_cond_omeg] * 0.27 / 0.1
-    # MVI calculation
-    adult_cond = AdultMVIDose>0
+    osm += vtbi * dd_pred/100 / 0.7 * 3.53
+    
+    # MVI calculations
+    adult_cond = AdultMVIDose > 0
     osm[adult_cond] += mvi_pred[adult_cond] * weight[adult_cond] * 4.11
     osm[~adult_cond] += mvi_pred[~adult_cond] * weight[~adult_cond] * 0.5
-    # Add remaining components
-    osm += po4_pred * weight * 7.2
-    osm += (na_pred - po4_pred) * weight * 2
-    osm += k_pred * weight * 2
-    osm += ca_pred * weight / 430.373 * 4
-    osm += zn_pred * weight / 65.38 / 1000 * 4
-    osm += mg_pred * weight * 4
-    osm += levocar_pred / 161.199 * weight
-    iv_vol_pred = vtbi + fat_pred*weight/0.2
-    iv_vol_pred[fat_cond_omeg] = vtbi[fat_cond_omeg] + fat_pred[fat_cond_omeg]*weight[fat_cond_omeg]/0.1
-    # Final calculation
-    osm = osm/(iv_vol_pred/1000)
+    
+    # Electrolyte calculations
+    osm += ca_pred * weight/100 * 0.697
+    osm += mg_pred * weight /2 * 246.47 /1000 / 0.5 * 4.06
+    osm += zn_pred * weight /1000 /65.38 * 136.286 / 1 * 0.354
+    
+    # Calculate acetate term
+    acetate_term = acetate_pred - factor * aa_pred
+    
+    # Complex phosphate/potassium/sodium/acetate calculations
+    phos_pot_cond1 = (po4_pred > 0) & (k_pred > po4_pred)
+    phos_pot_cond2 = (po4_pred > 0) & (k_pred < po4_pred)
+    
+    # Condition 1: Phosphate > 0 and Potassium > Phosphate
+    cond1_calc = (
+        po4_pred * weight /3 * 7.4 +
+        (k_pred - po4_pred) * weight /2 * 4 +
+        acetate_term * weight /2 * 4 +
+        (na_pred - acetate_term) * weight /4 * 8
+    )
+    
+    # Condition 2: Phosphate > 0 and Potassium < Phosphate
+    cond2_calc = (
+        k_pred * weight /4.4 * 7.4 +
+        (po4_pred - k_pred) * weight /3 * 7 +
+        acetate_term * weight /2 * 4 +
+        (na_pred - acetate_term - (po4_pred - k_pred)) * weight /4 * 8
+    )
+    
+    # Default calculation
+    default_calc = (
+        acetate_term * weight /2 * 4 +
+        k_pred * weight /2 * 4 +
+        (na_pred - acetate_term) * weight /4 * 8
+    )
+    
+    # Combine conditions
+    complex_term = torch.where(phos_pot_cond1, cond1_calc,
+                    torch.where(phos_pot_cond2, cond2_calc,
+                    default_calc))
+    
+    osm += complex_term
+    
+    # Final normalization
+    osm = osm/(vtbi/1000)
+    
     return osm
 
 

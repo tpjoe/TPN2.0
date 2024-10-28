@@ -359,10 +359,10 @@ def train_autoRegressive_PI(transformer, n_tasks, train_meta_dataloader, optimiz
 
             # get predicted values
             cl_pred_supposed = vectorized_cal_chloride(na_pred, k_pred, act_pred, aa_pred, po4_pred, meta_all[:, :, 0])
-            osm_pred = vectorized_get_osm(weight, vtbi, smof, omegaven, AdultMVIDose, 
-                            aa_pred, dd_pred, fat_pred, mvi_pred, 
-                            po4_pred, na_pred, k_pred, ca_pred,
-                            zn_pred, mg_pred, levocar_pred)
+            osm_pred = vectorized_get_osm(weight, vtbi, AdultMVIDose, 
+                       aa_pred, dd_pred, mvi_pred, 
+                       po4_pred, na_pred, k_pred, ca_pred,
+                       zn_pred, mg_pred, act_pred)
             soln_factor = ((ca_pred/430.373*weight*2/vtbi*1000)**0.863 * (po4_pred*weight/vtbi*1000)**1.19)/(aa_pred*weight/vtbi*100)
             # ca_mg = ca_pred * weight <<<<<<<<<
 
@@ -374,7 +374,7 @@ def train_autoRegressive_PI(transformer, n_tasks, train_meta_dataloader, optimiz
             osm_loss1 = torch.where(peri.any(), torch.relu(osm_pred[peri]-950)**2, torch.tensor(0.0, device=osm_pred.device))
             osm_loss2 = torch.where(peri.any(), torch.relu((meta_all[:, :, 2][peri]-50)-osm_pred)**2, torch.tensor(0.0, device=osm_pred.device))
             osm_loss = osm_loss1 + 1*osm_loss2
-            osm_diff_loss = torch.where(peri.any(), ((osm_pred - 1252) / 344 - (meta_all[:, :, 2] - 1252) / 344)**2, torch.tensor(0.0, device=osm_pred.device))
+            # osm_diff_loss = torch.where(peri.any(), ((osm_pred - 1252) / 344 - (meta_all[:, :, 2] - 1252) / 344)**2, torch.tensor(0.0, device=osm_pred.device))
             dd_loss = torch.where(peri.any(), torch.relu((dd_pred[peri]-mean_out[:, :, indices['DexDose']])/scale_out[:, :, indices['DexDose']]-\
                                                         (12.5-mean_out[:, :, indices['DexDose']])/scale_out[:, :, indices['DexDose']]), torch.tensor(0.0, device=dd_pred.device))
             # capo4_loss = torch.relu(soln_factor - 200) <<<<<<<<<<
