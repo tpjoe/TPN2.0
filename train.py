@@ -171,10 +171,11 @@ def train_autoRegressive_q2_AI(centers, p, trans_IDEC, n_tasks, train_dataloader
         yss = yss.to(DEVICE) #torch.concat(yss, axis=0).to(DEVICE)
         tgts = tgts.to(DEVICE) #torch.concat(tgts, axis=0).to(DEVICE)
         z = torch.Tensor(np.concatenate(y_all_batch).reshape(-1, n_tasks)).to(DEVICE)
-        q = trans_IDEC(z).detach().cpu()
-        tmp_q += [q]
+        q = trans_IDEC(z)#.detach().cpu()
+        tmp_q += [q.detach().cpu()]
+        p = p.to(DEVICE)
         optimizer.zero_grad()
-        loss = torch.mean((yss.reshape(-1)-tgts.reshape(-1))**2).cpu() + F.kl_div(q.log(), p[last_q:(last_q+q.shape[0]), :])
+        loss = torch.mean((yss.reshape(-1)-tgts.reshape(-1))**2) + F.kl_div(q.log(), p[last_q:(last_q+q.shape[0]), :])
         loss = loss.to(DEVICE)
         loss.backward(retain_graph=True)
         optimizer.step()
